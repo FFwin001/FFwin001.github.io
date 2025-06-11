@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>终极版域名自动轮播系统</title>
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #34a853;
+            --danger-color: #ea4335;
+            --warning-color: #fbbc05;
+            --dark-color: #202124;
+            --light-color: #f8f9fa;
+            --border-color: #dadce0;
+            --text-color: #3c4043;
+            --text-secondary: #5f6368;
+            --success-color: #34a853;
+            --info-color: #4285f4;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .section-body {
+            padding: 20px;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 100px;
+            height: 40px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-light {
+            background-color: var(--light-color);
+            color: var(--text-color);
+        }
+        
+        .status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .status-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .status-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .status-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .status-value.active {
+            color: var(--success-color);
+        }
+        
+        .status-value.error {
+            color: var(--danger-color);
+        }
+        
+        .status-value.warning {
+            color: var(--warning-color);
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+        
+        .domain-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .domain-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        
+        .domain-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .domain-item:last-child {
+            border-bottom: none;
+        }
+        
+        .domain-url {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+        
+        .domain-status {
+            width: 80px;
+            text-align: center;
+            font-size: 12px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .status-success {
+            background-color: rgba(52, 168, 83, 0.1);
+            color: var(--success-color);
+        }
+        
+        .status-failed {
+            background-color: rgba(234, 67, 53, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .status-pending {
+            background-color: rgba(251, 188, 5, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .domain-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .domain-action {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            min-width: auto;
+            height: auto;
+            box-shadow: none;
+        }
+        
+        .domain-action:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+        }
+        
+        .domain-action.delete {
+            color: var(--danger-color);
+        }
+        
+        .domain-action.delete:hover {
+            background-color: rgba(234, 67, 53, 0.1);
+        }
+        
+        .add-domain {
+            margin-bottom: 15px;
+        }
+        
+        .add-domain textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .add-domain textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+        
+        .instructions {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            line-height: 1.5;
+        }
+        
+        .error-message {
+            padding: 12px 15px;
+            background-color: rgba(234, 67, 53, 0.1);
+            color: var(--danger-color);
+            border-radius: 6px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .error-message.hidden {
+            display: none;
+        }
+        
+        .retry-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            min-width: auto;
+            height: auto;
+            margin-left: 10px;
+        }
+        
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .fullscreen-header {
+            padding: 12px 16px;
+            background-color: var(--dark-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .fullscreen-url {
+            flex: 1;
+            min-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        
+        .fullscreen-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .fullscreen-iframe {
+            flex: 1;
+            border: none;
+            background-color: white;
+        }
+        
+        .fullscreen-status {
+            padding: 8px 16px;
+            background-color: #f1f3f4;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .fullscreen-error {
+            padding: 12px;
+            background-color: rgba(234, 67, 53, 0.1);
+            color: var(--danger-color);
+            font-size: 14px;
+            display: none;
+        }
+        
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            flex: 1;
+            min-width: 120px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: normal;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .device-info {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .device-info-item {
+            margin-bottom: 8px;
+            display: flex;
+        }
+        
+        .device-info-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            min-width: 100px;
+        }
+        
+        .network-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .network-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .network-online {
+            background-color: var(--success-color);
+        }
+        
+        .network-offline {
+            background-color: var(--danger-color);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            iframe {
+                height: 300px;
+            }
+            
+            .controls {
+                justify-content: center;
+            }
+            
+            button {
+                flex: 1;
+                min-width: calc(50% - 10px);
+            }
+            
+            .fullscreen-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .fullscreen-url {
+                margin-bottom: 10px;
+                min-width: 100%;
+            }
+            
+            .fullscreen-controls {
+                justify-content: center;
+            }
+            
+            .fullscreen-controls button {
+                flex: 1;
+            }
+            
+            .domain-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .domain-url {
+                margin-right: 0;
+                width: 100%;
+            }
+            
+            .domain-status {
+                align-self: flex-start;
+            }
+            
+            .domain-actions {
+                align-self: flex-end;
+            }
+        }
+        
+        /* 动画效果 */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(66, 133, 244, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>终极版域名自动轮播系统</h1>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <div class="section-header">系统信息</div>
+                <div class="section-body">
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-label">当前IP地址</div>
+                            <div class="stat-value" id="ipAddress">获取中...</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">网络延迟</div>
+                            <div class="stat-value" id="networkLatency">-- ms</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">域名总数</div>
+                            <div class="stat-value" id="totalDomains">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">成功加载</div>
+                            <div class="stat-value" id="successCount">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="device-info">
+                        <div class="device-info-item">
+                            <div class="device-info-label">设备类型:</div>
+                            <div id="deviceType">检测中...</div>
+                        </div>
+                        <div class="device-info-item">
+                            <div class="device-info-label">操作系统:</div>
+                            <div id="osInfo">检测中...</div>
+                        </div>
+                        <div class="device-info-item">
+                            <div class="device-info-label">浏览器:</div>
+                            <div id="browserInfo">检测中...</div>
+                        </div>
+                        <div class="device-info-item">
+                            <div class="device-info-label">网络状态:</div>
+                            <div id="networkStatus" class="network-status">
+                                <span class="network-indicator network-offline"></span>
+                                <span>离线</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">域名管理</div>
+                <div class="section-body">
+                    <div class="instructions">
+                        可一次添加多个域名，用逗号、空格或换行分隔。示例:<br>
+                        https://example1.com, https://example2.com 或:<br>
+                        https://example3.com<br>
+                        https://example4.com<br>
+                        example5.com (自动添加https://)
+                    </div>
+                    
+                    <div class="add-domain">
+                        <textarea id="newDomains" placeholder="输入域名，多个域名可用逗号、空格或换行分隔"></textarea>
+                    </div>
+                    
+                    <div class="controls">
+                        <button id="addDomainBtn" class="btn-primary">
+                            <span class="loading-spinner" id="addDomainSpinner" style="display: none;"></span>
+                            添加域名
+                        </button>
+                        <button id="importBtn" class="btn-secondary">导入域名</button>
+                        <button id="exportBtn" class="btn-secondary">导出域名</button>
+                        <button id="clearBtn" class="btn-danger">清空列表</button>
+                        <input type="file" id="fileInput" accept=".txt,.csv,.json" style="display: none;">
+                    </div>
+                    
+                    <div class="domain-list" id="domainList">
+                        <div class="domain-item">暂无域名，请添加</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">控制面板</div>
+                <div class="section-body">
+                    <div class="controls">
+                        <button id="startBtn" class="btn-primary">
+                            <span class="loading-spinner" id="startSpinner" style="display: none;"></span>
+                            开始轮播
+                        </button>
+                        <button id="pauseBtn" class="btn-warning" disabled>暂停</button>
+                        <button id="nextBtn" class="btn-secondary" disabled>下一个</button>
+                        <button id="prevBtn" class="btn-secondary" disabled>上一个</button>
+                        <button id="reloadBtn" class="btn-secondary" disabled>重新加载</button>
+                        <button id="fullscreenBtn" class="btn-light">全屏模式</button>
+                        <button id="viewHistoryBtn" class="btn-light">查看历史记录</button>
+                    </div>
+                    
+                    <div class="status">
+                        <div class="status-item">
+                            <div class="status-label">当前状态</div>
+                            <div class="status-value" id="statusText">准备就绪</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">当前域名</div>
+                            <div class="status-value" id="currentDomain">无</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">进度</div>
+                            <div class="status-value" id="progressText">0/0</div>
+                        </div>
+                        <div class="status-item">
+                            <div class="status-label">加载时间</div>
+                            <div class="status-value" id="loadTime">--</div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    
+                    <div id="errorContainer" class="error-message hidden">
+                        <span id="errorText"></span>
+                        <button id="retryBtn" class="retry-btn btn-danger">重试</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header">域名预览</div>
+                <div class="section-body">
+                    <iframe id="domainFrame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全屏模式 -->
+    <div class="fullscreen" id="fullscreenContainer">
+        <div class="fullscreen-header">
+            <div class="fullscreen-url" id="fullscreenUrl"></div>
+            <div class="fullscreen-controls">
+                <button id="fsPrevBtn" class="btn-light">上一个</button>
+                <button id="fsNextBtn" class="btn-light">下一个</button>
+                <button id="fsReloadBtn" class="btn-light">重新加载</button>
+                <button id="fsPauseBtn" class="btn-light">暂停</button>
+                <button id="exitFullscreenBtn" class="btn-danger">退出全屏</button>
+            </div>
+        </div>
+        <div class="fullscreen-status">
+            <div id="fullscreenStatus">状态: 准备就绪</div>
+            <div id="fullscreenProgress">进度: 0/0</div>
+            <div id="fullscreenLoadTime">加载时间: --</div>
+        </div>
+        <iframe class="fullscreen-iframe" id="fullscreenFrame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+        <div id="fsErrorContainer" class="fullscreen-error">
+            <span id="fsErrorText"></span>
+            <button id="fsRetryBtn" class="retry-btn btn-danger">重试</button>
+        </div>
+    </div>
+
+    <script>
+        // 域名轮播系统 - 终极优化版
+        class DomainRotator {
+            constructor() {
+                this.domains = []; // 存储所有域名
+                this.domainStatus = {}; // 存储每个域名的状态
+                this.history = []; // 浏览历史记录
+                this.currentIndex = 0; // 当前显示的域名索引
+                this.isPlaying = false; // 是否正在自动播放
+                this.playTimeout = null; // 自动播放的定时器
+                this.loadTimeout = null; // 加载超时的定时器
+                this.retryCount = 0; // 当前域名的重试次数
+                this.maxRetries = 3; // 最大重试次数
+                this.viewDuration = 8000; // 默认8秒查看时间
+                this.loadTimeoutDuration = 15000; // 默认15秒超时
+                this.successCount = 0; // 成功加载次数
+                this.failCount = 0; // 失败加载次数
+                this.totalLoadTime = 0; // 总加载时间
+                this.averageLoadTime = 0; // 平均加载时间
+                this.startLoadTime = 0; // 开始加载的时间戳
+                this.networkLatency = 0; // 网络延迟
+                this.isOnline = true; // 是否在线
+                this.autoAdjustTimeout = true; // 是否自动调整超时时间
+                this.networkQuality = 'good'; // 网络质量评估: good, moderate, poor
+                this.userAgent = navigator.userAgent; // 用户代理字符串
+                this.deviceInfo = {}; // 设备信息
+                this.antiCrawlerSettings = { // 防反爬虫设置
+                    randomDelay: true, // 随机延迟
+                    minDelay: 3000, // 最小延迟(毫秒)
+                    maxDelay: 10000, // 最大延迟(毫秒)
+                    randomUserAgent: true, // 随机用户代理
+                    rotateIP: false, // 是否轮换IP(需要代理支持)
+                    maxRequestsPerMinute: 30, // 每分钟最大请求数
+                    requestCount: 0, // 当前请求计数
+                    lastRequestTime: 0 // 上次请求时间
+                };
+                
+                this.initElements();
+                this.initEventListeners();
+                this.loadFromStorage();
+                this.checkNetworkStatus();
+                this.updateNetworkLatency();
+                this.detectDeviceInfo();
+                setInterval(() => this.updateNetworkLatency(), 30000); // 每30秒更新一次网络延迟
+                setInterval(() => this.resetRequestCount(), 60000); // 每分钟重置请求计数
+            }
+            
+            initElements() {
+                // 主界面元素
+                this.elements = {
+                    domainFrame: document.getElementById('domainFrame'),
+                    fullscreenFrame: document.getElementById('fullscreenFrame'),
+                    domainList: document.getElementById('domainList'),
+                    newDomains: document.getElementById('newDomains'),
+                    statusText: document.getElementById('statusText'),
+                    currentDomain: document.getElementById('currentDomain'),
+                    progressText: document.getElementById('progressText'),
+                    progressBar: document.getElementById('progressBar'),
+                    loadTime: document.getElementById('loadTime'),
+                    errorContainer: document.getElementById('errorContainer'),
+                    errorText: document.getElementById('errorText'),
+                    fsErrorContainer: document.getElementById('fsErrorContainer'),
+                    fsErrorText: document.getElementById('fsErrorText'),
+                    fullscreenUrl: document.getElementById('fullscreenUrl'),
+                    fullscreenStatus: document.getElementById('fullscreenStatus'),
+                    fullscreenProgress: document.getElementById('fullscreenProgress'),
+                    fullscreenLoadTime: document.getElementById('fullscreenLoadTime'),
+                    ipAddress: document.getElementById('ipAddress'),
+                    networkLatency: document.getElementById('networkLatency'),
+                    totalDomains: document.getElementById('totalDomains'),
+                    successCount: document.getElementById('successCount'),
+                    addDomainSpinner: document.getElementById('addDomainSpinner'),
+                    startSpinner: document.getElementById('startSpinner'),
+                    deviceType: document.getElementById('deviceType'),
+                    osInfo: document.getElementById('osInfo'),
+                    browserInfo: document.getElementById('browserInfo'),
+                    networkStatus: document.getElementById('networkStatus')
+                };
+                
+                // 按钮
+                this.buttons = {
+                    startBtn: document.getElementById('startBtn'),
+                    pauseBtn: document.getElementById('pauseBtn'),
+                    nextBtn: document.getElementById('nextBtn'),
+                    prevBtn: document.getElementById('prevBtn'),
+                    reloadBtn: document.getElementById('reloadBtn'),
+                    addDomainBtn: document.getElementById('addDomainBtn'),
+                    clearBtn: document.getElementById('clearBtn'),
+                    fullscreenBtn: document.getElementById('fullscreenBtn'),
+                    viewHistoryBtn: document.getElementById('viewHistoryBtn'),
+                    retryBtn: document.getElementById('retryBtn'),
+                    fsRetryBtn: document.getElementById('fsRetryBtn'),
+                    fsPrevBtn: document.getElementById('fsPrevBtn'),
+                    fsNextBtn: document.getElementById('fsNextBtn'),
+                    fsReloadBtn: document.getElementById('fsReloadBtn'),
+                    fsPauseBtn: document.getElementById('fsPauseBtn'),
+                    exitFullscreenBtn: document.getElementById('exitFullscreenBtn'),
+                    importBtn: document.getElementById('importBtn'),
+                    exportBtn: document.getElementById('exportBtn'),
+                    fileInput: document.getElementById('fileInput')
+                };
+            }
+            
+            initEventListeners() {
+                // 主控制按钮
+                this.buttons.startBtn.addEventListener('click', () => this.startPlayback());
+                this.buttons.pauseBtn.addEventListener('click', () => this.pausePlayback());
+                this.buttons.nextBtn.addEventListener('click', () => {
+                    this.pausePlayback();
+                    this.nextDomain();
+                });
+                this.buttons.prevBtn.addEventListener('click', () => {
+                    this.pausePlayback();
+                    this.prevDomain();
+                });
+                this.buttons.reloadBtn.addEventListener('click', () => this.reloadCurrentDomain());
+                
+                // 域名管理按钮
+                this.buttons.addDomainBtn.addEventListener('click', () => this.addMultipleDomains());
+                this.buttons.clearBtn.addEventListener('click', () => this.clearDomainList());
+                this.buttons.importBtn.addEventListener('click', () => this.buttons.fileInput.click());
+                this.buttons.exportBtn.addEventListener('click', () => this.exportDomains());
+                this.buttons.fileInput.addEventListener('change', (e) => this.handleFileImport(e));
+                
+                // 全屏控制按钮
+                this.buttons.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
+                this.buttons.fsPrevBtn.addEventListener('click', () => {
+                    this.pausePlayback();
+                    this.prevDomain();
+                });
+                this.buttons.fsNextBtn.addEventListener('click', () => {
+                    this.pausePlayback();
+                    this.nextDomain();
+                });
+                this.buttons.fsReloadBtn.addEventListener('click', () => this.reloadCurrentDomain());
+                this.buttons.fsPauseBtn.addEventListener('click', () => {
+                    if (this.isPlaying) {
+                        this.pausePlayback();
+                    } else {
+                        this.startPlayback();
+                    }
+                });
+                this.buttons.exitFullscreenBtn.addEventListener('click', () => this.exitFullscreen());
+                
+                // 错误处理按钮
+                this.buttons.retryBtn.addEventListener('click', () => this.retryCurrentDomain());
+                this.buttons.fsRetryBtn.addEventListener('click', () => this.retryCurrentDomain());
+                
+                // 历史记录按钮
+                this.buttons.viewHistoryBtn.addEventListener('click', () => this.viewHistory());
+                
+                // iframe加载事件
+                this.elements.domainFrame.addEventListener('load', () => this.handleFrameLoad());
+                this.elements.domainFrame.addEventListener('error', () => this.handleFrameError());
+                this.elements.fullscreenFrame.addEventListener('load', () => this.handleFrameLoad());
+                this.elements.fullscreenFrame.addEventListener('error', () => this.handleFrameError());
+                
+                // 网络状态检测
+                window.addEventListener('online', () => this.handleNetworkChange(true));
+                window.addEventListener('offline', () => this.handleNetworkChange(false));
+                
+                // 快捷键支持
+                document.addEventListener('keydown', (e) => {
+                    // 空格键切换播放/暂停
+                    if (e.key === ' ' && !e.target.matches('textarea, input')) {
+                        e.preventDefault();
+                        if (this.isPlaying) {
+                            this.pausePlayback();
+                        } else {
+                            this.startPlayback();
+                        }
+                    }
+                    
+                    // 左右箭头切换域名
+                    if (e.key === 'ArrowRight' && !this.isPlaying) {
+                        this.nextDomain();
+                    }
+                    if (e.key === 'ArrowLeft' && !this.isPlaying) {
+                        this.prevDomain();
+                    }
+                    
+                    // F5重新加载
+                    if (e.key === 'F5') {
+                        e.preventDefault();
+                        this.reloadCurrentDomain();
+                    }
+                    
+                    // Ctrl+Enter添加域名
+                    if (e.key === 'Enter' && e.ctrlKey && e.target.id === 'newDomains') {
+                        this.addMultipleDomains();
+                    }
+                });
+            }
+            
+            // 从本地存储加载数据
+            loadFromStorage() {
+                const savedDomains = localStorage.getItem('domainRotatorDomains');
+                if (savedDomains) {
+                    try {
+                        this.domains = JSON.parse(savedDomains);
+                        this.renderDomainList();
+                    } catch (e) {
+                        console.error('解析域名列表失败:', e);
+                    }
+                }
+                
+                const savedStatus = localStorage.getItem('domainRotatorStatus');
+                if (savedStatus) {
+                    try {
+                        this.domainStatus = JSON.parse(savedStatus);
+                    } catch (e) {
+                        console.error('解析域名状态失败:', e);
+                    }
+                }
+                
+                const savedHistory = localStorage.getItem('domainRotatorHistory');
+                if (savedHistory) {
+                    try {
+                        this.history = JSON.parse(savedHistory);
+                    } catch (e) {
+                        console.error('解析历史记录失败:', e);
+                    }
+                }
+                
+                const savedIndex = localStorage.getItem('domainRotatorCurrentIndex');
+                if (savedIndex) {
+                    this.currentIndex = parseInt(savedIndex) || 0;
+                    if (this.currentIndex >= 0 && this.currentIndex < this.domains.length && this.domains.length > 0) {
+                        this.loadDomain(this.currentIndex, false);
+                    }
+                }
+                
+                const savedStats = localStorage.getItem('domainRotatorStats');
+                if (savedStats) {
+                    try {
+                        const stats = JSON.parse(savedStats);
+                        this.successCount = stats.successCount || 0;
+                        this.failCount = stats.failCount || 0;
+                        this.totalLoadTime = stats.totalLoadTime || 0;
+                        this.averageLoadTime = stats.averageLoadTime || 0;
+                    } catch (e) {
+                        console.error('解析统计数据失败:', e);
+                    }
+                }
+                
+                this.updateStatsDisplay();
+                this.updateUI();
+            }
+            
+            // 保存数据到本地存储
+            saveToStorage() {
+                localStorage.setItem('domainRotatorDomains', JSON.stringify(this.domains));
+                localStorage.setItem('domainRotatorStatus', JSON.stringify(this.domainStatus));
+                localStorage.setItem('domainRotatorHistory', JSON.stringify(this.history));
+                localStorage.setItem('domainRotatorCurrentIndex', this.currentIndex.toString());
+                
+                const stats = {
+                    successCount: this.successCount,
+                    failCount: this.failCount,
+                    totalLoadTime: this.totalLoadTime,
+                    averageLoadTime: this.averageLoadTime
+                };
+                localStorage.setItem('domainRotatorStats', JSON.stringify(stats));
+            }
+            
+            // 渲染域名列表
+            renderDomainList() {
+                this.elements.domainList.innerHTML = '';
+                
+                if (this.domains.length === 0) {
+                    this.elements.domainList.innerHTML = '<div class="domain-item">暂无域名，请添加</div>';
+                    this.updateStatsDisplay();
+                    return;
+                }
+                
+                this.domains.forEach((domain, index) => {
+                    const domainItem = document.createElement('div');
+                    domainItem.className = 'domain-item';
+                    
+                    // 获取域名状态
+                    const status = this.domainStatus[domain] || 'pending';
+                    const statusText = status === 'success' ? '成功' : 
+                                     status === 'failed' ? '失败' : '待检测';
+                    const statusClass = status === 'success' ? 'status-success' : 
+                                      status === 'failed' ? 'status-failed' : 'status-pending';
+                    
+                    domainItem.innerHTML = `
+                        <div class="domain-url" title="${domain}">${domain}</div>
+                        <div class="domain-status ${statusClass}" title="上次状态: ${statusText}">${statusText}</div>
+                        <div class="domain-actions">
+                            <button class="domain-action edit" data-index="${index}" title="编辑">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                            <button class="domain-action delete" data-index="${index}" title="删除">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    this.elements.domainList.appendChild(domainItem);
+                });
+                
+                // 添加删除和编辑事件
+                document.querySelectorAll('.domain-action.delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.getAttribute('data-index'));
+                        this.removeDomain(index);
+                    });
+                });
+                
+                document.querySelectorAll('.domain-action.edit').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const index = parseInt(btn.getAttribute('data-index'));
+                        this.editDomain(index);
+                    });
+                });
+                
+                // 点击域名项加载该域名
+                document.querySelectorAll('.domain-item').forEach((item, index) => {
+                    item.addEventListener('click', () => {
+                        this.pausePlayback();
+                        this.loadDomain(index, false);
+                    });
+                });
+                
+                this.updateStatsDisplay();
+                this.updateUI();
+            }
+            
+            // 编辑域名
+            editDomain(index) {
+                if (index < 0 || index >= this.domains.length) return;
+                
+                const oldUrl = this.domains[index];
+                const newUrl = prompt('编辑域名', oldUrl);
+                if (newUrl !== null) {
+                    let processedUrl = newUrl.trim();
+                    if (!processedUrl.startsWith('http://') && !processedUrl.startsWith('https://')) {
+                        processedUrl = 'https://' + processedUrl;
+                    }
+                    
+                    // 如果URL有变化，更新状态
+                    if (oldUrl !== processedUrl) {
+                        delete this.domainStatus[oldUrl];
+                        this.domainStatus[processedUrl] = 'pending';
+                    }
+                    
+                    this.domains[index] = processedUrl;
+                    this.saveToStorage();
+                    this.renderDomainList();
+                    
+                    if (index === this.currentIndex) {
+                        this.loadDomain(index, false);
+                    }
+                }
+            }
+            
+            // 添加多个域名
+            addMultipleDomains() {
+                const inputText = this.elements.newDomains.value.trim();
+                
+                if (!inputText) {
+                    this.showAlert('请输入域名');
+                    return;
+                }
+                
+                // 显示加载状态
+                this.buttons.addDomainBtn.disabled = true;
+                this.elements.addDomainSpinner.style.display = 'inline-block';
+                
+                // 使用setTimeout让UI有时间更新
+                setTimeout(() => {
+                    try {
+                        // 替换各种分隔符为统一的分隔符
+                        let normalizedText = inputText.replace(/[\s,，、]+/g, ',');
+                        
+                        // 分割域名
+                        let newDomains = normalizedText.split(',')
+                            .map(domain => domain.trim())
+                            .filter(domain => domain.length > 0);
+                        
+                        // 处理每个域名
+                        newDomains = newDomains.map(domain => {
+                            // 如果没有协议头，添加https://
+                            if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
+                                domain = 'https://' + domain;
+                            }
+                            
+                            // 移除末尾的斜杠
+                            if (domain.endsWith('/')) {
+                                domain = domain.slice(0, -1);
+                            }
+                            
+                            return domain;
+                        });
+                        
+                        // 过滤掉已存在的域名
+                        newDomains = newDomains.filter(domain => 
+                            !this.domains.some(existing => existing.toLowerCase() === domain.toLowerCase())
+                        );
+                        
+                        if (newDomains.length === 0) {
+                            this.showAlert('没有可添加的新域名');
+                            return;
+                        }
+                        
+                        // 添加新域名并初始化状态
+                        newDomains.forEach(domain => {
+                            this.domainStatus[domain] = 'pending';
+                        });
+                        
+                        this.domains = this.domains.concat(newDomains);
+                        this.saveToStorage();
+                        this.renderDomainList();
+                        
+                        // 清空输入框
+                        this.elements.newDomains.value = '';
+                        
+                        this.showAlert(`成功添加 ${newDomains.length} 个域名`, 'success');
+                    } catch (error) {
+                        console.error('添加域名时出错:', error);
+                        this.showAlert('添加域名时出错: ' + error.message);
+                    } finally {
+                        this.buttons.addDomainBtn.disabled = false;
+                        this.elements.addDomainSpinner.style.display = 'none';
+                    }
+                }, 100);
+            }
+            
+            // 导入域名
+            handleFileImport(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        let domains = [];
+                        const content = e.target.result;
+                        
+                        // 尝试解析JSON
+                        try {
+                            const jsonData = JSON.parse(content);
+                            if (Array.isArray(jsonData)) {
+                                domains = jsonData;
+                            } else if (typeof jsonData === 'object' && jsonData.domains) {
+                                domains = jsonData.domains;
+                            }
+                        } catch (e) {
+                            // 不是JSON，尝试按行分割
+                            domains = content.split('\n')
+                                .map(line => line.trim())
+                                .filter(line => line.length > 0);
+                        }
+                        
+                        // 处理域名
+                        domains = domains.map(domain => {
+                            if (!domain.startsWith('http://') && !domain.startsWith('https://')) {
+                                domain = 'https://' + domain;
+                            }
+                            return domain;
+                        });
+                        
+                        // 过滤掉已存在的域名
+                        domains = domains.filter(domain => 
+                            !this.domains.some(existing => existing.toLowerCase() === domain.toLowerCase())
+                        );
+                        
+                        if (domains.length === 0) {
+                            this.showAlert('没有可添加的新域名');
+                            return;
+                        }
+                        
+                        // 添加新域名并初始化状态
+                        domains.forEach(domain => {
+                            this.domainStatus[domain] = 'pending';
+                        });
+                        
+                        this.domains = this.domains.concat(domains);
+                        this.saveToStorage();
+                        this.renderDomainList();
+                        
+                        this.showAlert(`成功导入 ${domains.length} 个域名`, 'success');
+                    } catch (error) {
+                        console.error('导入域名时出错:', error);
+                        this.showAlert('导入域名时出错: ' + error.message);
+                    }
+                    
+                    // 重置文件输入
+                    this.buttons.fileInput.value = '';
+                };
+                
+                reader.readAsText(file);
+            }
+            
+            // 导出域名
+            exportDomains() {
+                if (this.domains.length === 0) {
+                    this.showAlert('没有可导出的域名');
+                    return;
+                }
+                
+                const data = {
+                    domains: this.domains,
+                    status: this.domainStatus,
+                    meta: {
+                        exportedAt: new Date().toISOString(),
+                        count: this.domains.length,
+                        successCount: this.successCount,
+                        failCount: this.failCount
+                    }
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `域名列表_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+            
+            // 删除域名
+            removeDomain(index) {
+                if (index >= 0 && index < this.domains.length) {
+                    const domain = this.domains[index];
+                    delete this.domainStatus[domain];
+                    this.domains.splice(index, 1);
+                    this.saveToStorage();
+                    this.renderDomainList();
+                    
+                    // 如果删除了当前正在显示的域名，重新加载
+                    if (this.currentIndex >= this.domains.length) {
+                        this.currentIndex = Math.max(0, this.domains.length - 1);
+                        if (this.domains.length > 0) {
+                            this.loadDomain(this.currentIndex);
+                        } else {
+                            this.elements.domainFrame.src = 'about:blank';
+                            this.elements.currentDomain.textContent = '无';
+                            this.elements.statusText.textContent = '准备就绪';
+                            this.buttons.startBtn.disabled = true;
+                        }
+                    }
+                    
+                    this.saveToStorage();
+                }
+            }
+            
+            // 清空域名列表
+            clearDomainList() {
+                if (this.domains.length === 0 || confirm('确定要清空所有域名和缓存吗？此操作不可恢复！')) {
+                    this.domains = [];
+                    this.domainStatus = {};
+                    this.history = [];
+                    this.currentIndex = 0;
+                    this.successCount = 0;
+                    this.failCount = 0;
+                    this.totalLoadTime = 0;
+                    this.averageLoadTime = 0;
+                    
+                    // 清除所有本地存储
+                    localStorage.removeItem('domainRotatorDomains');
+                    localStorage.removeItem('domainRotatorStatus');
+                    localStorage.removeItem('domainRotatorHistory');
+                    localStorage.removeItem('domainRotatorCurrentIndex');
+                    localStorage.removeItem('domainRotatorStats');
+                    
+                    // 重置UI
+                    this.renderDomainList();
+                    this.elements.domainFrame.src = 'about:blank';
+                    this.elements.currentDomain.textContent = '无';
+                    this.elements.statusText.textContent = '准备就绪';
+                    this.buttons.startBtn.disabled = true;
+                    this.pausePlayback();
+                    
+                    // 更新统计显示
+                    this.updateStatsDisplay();
+                }
+            }
+            
+            // 加载域名到iframe
+            loadDomainInFrame(url, frameId = 'domainFrame', errorContainerId = 'errorContainer') {
+                const frame = frameId === 'domainFrame' ? this.elements.domainFrame : this.elements.fullscreenFrame;
+                const errorContainer = frameId === 'domainFrame' ? this.elements.errorContainer : this.elements.fsErrorContainer;
+                const errorText = frameId === 'domainFrame' ? this.elements.errorText : this.elements.fsErrorText;
+                
+                // 隐藏错误信息
+                errorContainer.classList.add('hidden');
+                
+                // 更新当前域名显示
+                if (frameId === 'domainFrame') {
+                    this.elements.currentDomain.textContent = url;
+                } else {
+                    this.elements.fullscreenUrl.textContent = url;
+                    this.elements.fullscreenProgress.textContent = `进度: ${this.currentIndex + 1}/${this.domains.length}`;
+                }
+                
+                // 添加到历史记录
+                this.addToHistory(url);
+                
+                // 记录开始加载时间
+                this.startLoadTime = Date.now();
+                
+                // 检查请求频率限制
+                if (this.checkRequestRateLimit()) {
+                    // 应用防反爬虫策略
+                    this.applyAntiCrawlerMeasures(() => {
+                        // 设置iframe源
+                        frame.src = url;
+                    });
+                } else {
+                    // 请求过于频繁，暂停播放
+                    this.pausePlayback();
+                    this.showAlert('请求过于频繁，系统已暂停以防止被封锁', 'warning');
+                }
+            }
+            
+            // 检查请求频率限制
+            checkRequestRateLimit() {
+                const now = Date.now();
+                const timeDiff = now - this.antiCrawlerSettings.lastRequestTime;
+                
+                // 如果距离上次请求不到1分钟
+                if (timeDiff < 60000) {
+                    // 检查是否超过每分钟最大请求数
+                    if (this.antiCrawlerSettings.requestCount >= this.antiCrawlerSettings.maxRequestsPerMinute) {
+                        return false;
+                    }
+                    this.antiCrawlerSettings.requestCount++;
+                } else {
+                    // 超过1分钟，重置计数器
+                    this.antiCrawlerSettings.requestCount = 1;
+                }
+                
+                this.antiCrawlerSettings.lastRequestTime = now;
+                return true;
+            }
+            
+            // 重置请求计数
+            resetRequestCount() {
+                this.antiCrawlerSettings.requestCount = 0;
+            }
+            
+            // 应用防反爬虫策略
+            applyAntiCrawlerMeasures(callback) {
+                if (this.antiCrawlerSettings.randomDelay) {
+                    // 计算随机延迟时间
+                    const delay = Math.floor(Math.random() * 
+                        (this.antiCrawlerSettings.maxDelay - this.antiCrawlerSettings.minDelay + 1)) + 
+                        this.antiCrawlerSettings.minDelay;
+                    
+                    // 显示延迟信息
+                    this.elements.statusText.textContent = `防反爬虫延迟: ${delay/1000}秒...`;
+                    this.elements.statusText.className = 'status-value warning';
+                    this.elements.fullscreenStatus.textContent = `状态: 防反爬虫延迟: ${delay/1000}秒...`;
+                    
+                    // 应用延迟
+                    setTimeout(() => {
+                        callback();
+                    }, delay);
+                } else {
+                    // 不应用延迟，直接执行
+                    callback();
+                }
+            }
+            
+            // 加载域名
+            loadDomain(index, autoPlay = true) {
+                if (index < 0 || index >= this.domains.length) return;
+                
+                this.currentIndex = index;
+                this.saveToStorage();
+                const domain = this.domains[index];
+                
+                // 更新状态
+                this.elements.statusText.textContent = '加载中...';
+                this.elements.statusText.className = 'status-value warning';
+                this.elements.fullscreenStatus.textContent = `状态: 加载中...`;
+                this.updateUI();
+                
+                // 设置iframe源
+                this.loadDomainInFrame(domain);
+                
+                // 如果是全屏模式，同时更新全屏iframe
+                if (document.getElementById('fullscreenContainer').style.display === 'flex') {
+                    this.loadDomainInFrame(domain, 'fullscreenFrame', 'fsErrorContainer');
+                }
+                
+                // 清除之前的超时
+                clearTimeout(this.loadTimeout);
+                
+                // 根据网络质量调整超时时间
+                let timeoutDuration = this.loadTimeoutDuration;
+                if (this.autoAdjustTimeout) {
+                    if (this.networkQuality === 'poor') {
+                        timeoutDuration = 30000; // 30秒
+                    } else if (this.networkQuality === 'moderate') {
+                        timeoutDuration = 20000; // 20秒
+                    } else {
+                        timeoutDuration = 15000; // 15秒
+                    }
+                }
+                
+                // 设置加载超时
+                this.loadTimeout = setTimeout(() => {
+                    this.handleLoadTimeout(domain, autoPlay);
+                }, timeoutDuration);
+                
+                // 重置重试计数
+                this.retryCount = 0;
+            }
+            
+            // 处理加载超时
+            handleLoadTimeout(domain, autoPlay) {
+                this.elements.statusText.textContent = '加载超时';
+                this.elements.statusText.className = 'status-value error';
+                this.elements.fullscreenStatus.textContent = '状态: 加载超时';
+                
+                this.showLoadError(domain, `加载超时 (${this.loadTimeoutDuration/1000}秒)`);
+                
+                // 更新域名状态
+                this.domainStatus[domain] = 'failed';
+                this.failCount++;
+                this.saveToStorage();
+                this.updateStatsDisplay();
+                this.renderDomainList();
+                
+                if (this.isPlaying && autoPlay) {
+                    if (this.retryCount < this.maxRetries) {
+                        this.retryCount++;
+                        setTimeout(() => {
+                            this.elements.statusText.textContent = `重试中 (${this.retryCount}/${this.maxRetries})...`;
+                            this.elements.fullscreenStatus.textContent = `重试中 (${this.retryCount}/${this.maxRetries})...`;
+                            this.loadDomain(this.currentIndex, true);
+                        }, 2000);
+                    } else {
+                        setTimeout(() => {
+                            this.nextDomain();
+                        }, 2000);
+                    }
+                }
+            }
+            
+            // 处理iframe加载完成
+            handleFrameLoad() {
+                clearTimeout(this.loadTimeout);
+                
+                // 计算加载时间
+                const loadTime = Date.now() - this.startLoadTime;
+                this.totalLoadTime += loadTime;
+                this.averageLoadTime = this.totalLoadTime / (this.successCount + this.failCount + 1);
+                this.successCount++;
+                
+                // 更新域名状态
+                const currentDomain = this.domains[this.currentIndex];
+                this.domainStatus[currentDomain] = 'success';
+                
+                // 更新状态
+                this.elements.statusText.textContent = this.isPlaying ? '播放中' : '加载完成';
+                this.elements.statusText.className = 'status-value active';
+                this.elements.fullscreenStatus.textContent = this.isPlaying ? '状态: 播放中' : '状态: 加载完成';
+                
+                // 更新加载时间显示
+                this.elements.loadTime.textContent = `${loadTime}ms`;
+                this.elements.fullscreenLoadTime.textContent = `加载时间: ${loadTime}ms`;
+                
+                // 隐藏错误信息
+                this.elements.errorContainer.classList.add('hidden');
+                this.elements.fsErrorContainer.style.display = 'none';
+                
+                // 保存统计数据
+                this.saveToStorage();
+                this.updateStatsDisplay();
+                this.renderDomainList();
+                
+                // 根据加载时间评估网络质量
+                this.evaluateNetworkQuality(loadTime);
+                
+                if (this.isPlaying) {
+                    // 根据网络质量调整查看时间
+                    let adjustedViewDuration = this.viewDuration;
+                    if (this.autoAdjustTimeout) {
+                        if (this.networkQuality === 'poor') {
+                            adjustedViewDuration = 10000; // 10秒
+                        } else if (this.networkQuality === 'moderate') {
+                            adjustedViewDuration = 8000; // 8秒
+                        } else {
+                            adjustedViewDuration = 6000; // 6秒
+                        }
+                    }
+                    
+                    // 设置自动切换到下一个
+                    clearTimeout(this.playTimeout);
+                    this.playTimeout = setTimeout(() => {
+                        this.nextDomain();
+                    }, adjustedViewDuration);
+                }
+            }
+            
+            // 评估网络质量
+            evaluateNetworkQuality(loadTime) {
+                if (loadTime > 10000) {
+                    this.networkQuality = 'poor';
+                } else if (loadTime > 5000) {
+                    this.networkQuality = 'moderate';
+                } else {
+                    this.networkQuality = 'good';
+                }
+            }
+            
+            // 处理iframe加载错误
+            handleFrameError() {
+                clearTimeout(this.loadTimeout);
+                
+                const domain = this.domains[this.currentIndex];
+                this.elements.statusText.textContent = '加载失败';
+                this.elements.statusText.className = 'status-value error';
+                this.elements.fullscreenStatus.textContent = '状态: 加载失败';
+                
+                this.showLoadError(domain, '加载失败');
+                
+                // 更新域名状态
+                this.domainStatus[domain] = 'failed';
+                this.failCount++;
+                this.saveToStorage();
+                this.updateStatsDisplay();
+                this.renderDomainList();
+                
+                if (this.isPlaying) {
+                    if (this.retryCount < this.maxRetries) {
+                        this.retryCount++;
+                        setTimeout(() => {
+                            this.elements.statusText.textContent = `重试中 (${this.retryCount}/${this.maxRetries})...`;
+                            this.elements.fullscreenStatus.textContent = `重试中 (${this.retryCount}/${this.maxRetries})...`;
+                            this.loadDomain(this.currentIndex, true);
+                        }, 2000);
+                    } else {
+                        // 即使加载失败也继续下一个
+                        setTimeout(() => {
+                            this.nextDomain();
+                        }, 2000);
+                    }
+                }
+            }
+            
+            // 显示加载错误
+            showLoadError(domain, message) {
+                this.elements.errorText.textContent = `${message}: ${domain}`;
+                this.elements.errorContainer.classList.remove('hidden');
+                
+                this.elements.fsErrorText.textContent = `${message}: ${domain}`;
+                this.elements.fsErrorContainer.style.display = 'flex';
+            }
+            
+            // 重试当前域名
+            retryCurrentDomain() {
+                this.elements.errorContainer.classList.add('hidden');
+                this.elements.fsErrorContainer.style.display = 'none';
+                this.loadDomain(this.currentIndex, this.isPlaying);
+            }
+            
+            // 下一个域名
+            nextDomain() {
+                if (this.currentIndex < this.domains.length - 1) {
+                    this.loadDomain(this.currentIndex + 1);
+                } else {
+                    // 到达列表末尾
+                    this.isPlaying = false;
+                    this.elements.statusText.textContent = '播放完成';
+                    this.elements.statusText.className = 'status-value';
+                    this.elements.fullscreenStatus.textContent = '状态: 播放完成';
+                    this.buttons.startBtn.disabled = false;
+                    this.buttons.pauseBtn.disabled = true;
+                    this.buttons.fsPauseBtn.textContent = '播放';
+                }
+            }
+            
+            // 上一个域名
+            prevDomain() {
+                if (this.currentIndex > 0) {
+                    this.loadDomain(this.currentIndex - 1);
+                }
+            }
+            
+            // 重新加载当前域名
+            reloadCurrentDomain() {
+                if (this.domains.length > 0 && this.currentIndex >= 0 && this.currentIndex < this.domains.length) {
+                    this.loadDomain(this.currentIndex, false);
+                }
+            }
+            
+            // 开始播放
+            startPlayback() {
+                if (this.domains.length === 0) {
+                    this.elements.statusText.textContent = '没有可用的域名';
+                    return;
+                }
+                
+                // 显示加载状态
+                this.buttons.startBtn.disabled = true;
+                this.elements.startSpinner.style.display = 'inline-block';
+                
+                setTimeout(() => {
+                    this.isPlaying = true;
+                    this.elements.statusText.textContent = '播放中';
+                    this.elements.statusText.className = 'status-value active';
+                    this.elements.fullscreenStatus.textContent = '状态: 播放中';
+                    this.buttons.startBtn.disabled = true;
+                    this.buttons.pauseBtn.disabled = false;
+                    this.buttons.fsPauseBtn.textContent = '暂停';
+                    this.elements.startSpinner.style.display = 'none';
+                    
+                    // 如果当前没有加载任何域名，从第一个开始
+                    const frame = this.elements.domainFrame;
+                    if (!frame.src || frame.src === 'about:blank') {
+                        this.loadDomain(0);
+                    } else {
+                        // 如果已经有加载的域名，继续自动播放
+                        this.playTimeout = setTimeout(() => {
+                            this.nextDomain();
+                        }, this.viewDuration);
+                    }
+                }, 100);
+            }
+            
+            // 暂停播放
+            pausePlayback() {
+                this.isPlaying = false;
+                this.elements.statusText.textContent = '已暂停';
+                this.elements.statusText.className = 'status-value';
+                this.elements.fullscreenStatus.textContent = '状态: 已暂停';
+                this.buttons.startBtn.disabled = false;
+                this.buttons.pauseBtn.disabled = true;
+                this.buttons.fsPauseBtn.textContent = '播放';
+                clearTimeout(this.playTimeout);
+                clearTimeout(this.loadTimeout);
+            }
+            
+            // 更新UI状态
+            updateUI() {
+                const progressText = this.elements.progressText;
+                const progressBar = this.elements.progressBar;
+                
+                progressText.textContent = `${this.currentIndex + 1}/${this.domains.length}`;
+                progressBar.style.width = this.domains.length > 0 ? `${((this.currentIndex + 1) / this.domains.length) * 100}%` : '0%';
+                
+                this.buttons.nextBtn.disabled = this.currentIndex >= this.domains.length - 1 || this.domains.length === 0;
+                this.buttons.prevBtn.disabled = this.currentIndex <= 0 || this.domains.length === 0;
+                this.buttons.startBtn.disabled = this.domains.length === 0;
+                this.buttons.reloadBtn.disabled = this.domains.length === 0;
+                
+                // 同步全屏控制按钮状态
+                if (document.getElementById('fullscreenContainer').style.display === 'flex') {
+                    this.updateFullscreenControls();
+                    this.elements.fullscreenProgress.textContent = `进度: ${this.currentIndex + 1}/${this.domains.length}`;
+                }
+            }
+            
+            // 更新全屏控制按钮状态
+            updateFullscreenControls() {
+                this.buttons.fsPrevBtn.disabled = this.currentIndex <= 0;
+                this.buttons.fsNextBtn.disabled = this.currentIndex >= this.domains.length - 1;
+            }
+            
+            // 添加历史记录
+            addToHistory(domain) {
+                // 检查是否已存在相同的历史记录
+                const existingIndex = this.history.findIndex(item => item.url === domain);
+                
+                if (existingIndex !== -1) {
+                    // 如果已存在，更新访问时间
+                    this.history[existingIndex].timestamp = new Date().toISOString();
+                } else {
+                    // 否则添加新的历史记录
+                    this.history.unshift({
+                        url: domain,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    // 限制历史记录数量
+                    if (this.history.length > 100) {
+                        this.history.pop();
+                    }
+                }
+                
+                this.saveToStorage();
+            }
+            
+            // 查看历史记录
+            viewHistory() {
+                if (this.history.length === 0) {
+                    this.showAlert('暂无历史记录');
+                    return;
+                }
+                
+                // 创建历史记录窗口
+                const historyWindow = window.open('', '_blank');
+                historyWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>浏览历史记录</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+                            h1 { color: #4285f4; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+                            .history-item { padding: 12px 0; border-bottom: 1px solid #eee; }
+                            .history-url { margin-bottom: 5px; font-weight: bold; }
+                            .history-url a { color: #4285f4; text-decoration: none; }
+                            .history-url a:hover { text-decoration: underline; }
+                            .history-time { color: #666; font-size: 0.9em; }
+                            .history-actions { margin-top: 5px; }
+                            .history-actions button { background: #f1f3f4; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+                            .history-actions button:hover { background: #e0e0e0; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>浏览历史记录 (${this.history.length})</h1>
+                `);
+                
+                this.history.forEach(item => {
+                    const date = new Date(item.timestamp);
+                    const formattedDate = date.toLocaleString();
+                    
+                    historyWindow.document.write(`
+                        <div class="history-item">
+                            <div class="history-url"><a href="${item.url}" target="_blank">${item.url}</a></div>
+                            <div class="history-time">访问时间: ${formattedDate}</div>
+                            <div class="history-actions">
+                                <button onclick="window.opener.postMessage({action: 'loadDomain', url: '${item.url}'}, '*')">加载</button>
+                                <button onclick="window.opener.postMessage({action: 'removeHistory', url: '${item.url}'}, '*')">删除</button>
+                            </div>
+                        </div>
+                    `);
+                });
+                
+                historyWindow.document.write('</body></html>');
+                historyWindow.document.close();
+                
+                // 监听历史记录窗口的消息
+                window.addEventListener('message', (e) => {
+                    if (e.data.action === 'loadDomain') {
+                        const index = this.domains.indexOf(e.data.url);
+                        if (index !== -1) {
+                            this.pausePlayback();
+                            this.loadDomain(index, false);
+                        } else {
+                            this.showAlert('该域名不在当前列表中');
+                        }
+                    } else if (e.data.action === 'removeHistory') {
+                        this.history = this.history.filter(item => item.url !== e.data.url);
+                        this.saveToStorage();
+                        e.source.postMessage({action: 'refresh'}, '*');
+                    }
+                });
+            }
+            
+            // 获取IP信息
+            fetchIPInfo() {
+                // 使用ipapi.co服务获取IP信息
+                fetch('https://ipapi.co/json/')
+                    .then(response => response.json())
+                    .then(data => {
+                        let info = data.ip || '未知';
+                        if (data.city || data.region || data.country_name) {
+                            info += ` (${[data.city, data.region, data.country_name].filter(Boolean).join(', ')})`;
+                        }
+                        this.elements.ipAddress.textContent = info;
+                    })
+                    .catch(error => {
+                        console.error('获取IP信息失败:', error);
+                        // 如果ipapi.co失败，尝试使用另一个服务
+                        fetch('https://api.ipify.org?format=json')
+                            .then(response => response.json())
+                            .then(data => {
+                                this.elements.ipAddress.textContent = data.ip || '未知';
+                            })
+                            .catch(() => {
+                                this.elements.ipAddress.textContent = '无法获取';
+                            });
+                    });
+            }
+            
+            // 更新网络延迟
+            updateNetworkLatency() {
+                const testUrl = 'https://www.google.com/favicon.ico?' + Date.now();
+                const startTime = Date.now();
+                
+                fetch(testUrl, { method: 'HEAD', cache: 'no-store' })
+                    .then(() => {
+                        const latency = Date.now() - startTime;
+                        this.networkLatency = latency;
+                        this.elements.networkLatency.textContent = `${latency} ms`;
+                        this.isOnline = true;
+                        this.updateNetworkStatusDisplay();
+                    })
+                    .catch(() => {
+                        this.elements.networkLatency.textContent = '离线';
+                        this.isOnline = false;
+                        this.updateNetworkStatusDisplay();
+                    });
+            }
+            
+            // 检测设备信息
+            detectDeviceInfo() {
+                const userAgent = this.userAgent;
+                let deviceType = '未知设备';
+                let os = '未知操作系统';
+                let browser = '未知浏览器';
+                
+                // 检测设备类型
+                if (/Mobile|Android|iPhone|iPad|iPod/i.test(userAgent)) {
+                    deviceType = '移动设备';
+                    if (/Android/i.test(userAgent)) {
+                        deviceType = 'Android设备';
+                    } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+                        deviceType = 'iOS设备';
+                    }
+                } else {
+                    deviceType = '桌面设备';
+                }
+                
+                // 检测操作系统
+                if (/Windows/i.test(userAgent)) {
+                    os = 'Windows';
+                    if (/Windows NT 10.0/i.test(userAgent)) {
+                        os += ' 10';
+                    } else if (/Windows NT 6.3/i.test(userAgent)) {
+                        os += ' 8.1';
+                    } else if (/Windows NT 6.2/i.test(userAgent)) {
+                        os += ' 8';
+                    } else if (/Windows NT 6.1/i.test(userAgent)) {
+                        os += ' 7';
+                    }
+                } else if (/Macintosh|Mac OS X/i.test(userAgent)) {
+                    os = 'Mac OS';
+                } else if (/Linux/i.test(userAgent)) {
+                    os = 'Linux';
+                } else if (/Android/i.test(userAgent)) {
+                    os = 'Android';
+                    const androidVersion = userAgent.match(/Android\s([0-9\.]+)/);
+                    if (androidVersion) {
+                        os += ` ${androidVersion[1]}`;
+                    }
+                } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+                    os = 'iOS';
+                    const iosVersion = userAgent.match(/OS\s([0-9_]+)/);
+                    if (iosVersion) {
+                        os += ` ${iosVersion[1].replace(/_/g, '.')}`;
+                    }
+                }
+                
+                // 检测浏览器
+                if (/Chrome/i.test(userAgent)) {
+                    browser = 'Chrome';
+                    const chromeVersion = userAgent.match(/Chrome\/([0-9\.]+)/);
+                    if (chromeVersion) {
+                        browser += ` ${chromeVersion[1]}`;
+                    }
+                } else if (/Firefox/i.test(userAgent)) {
+                    browser = 'Firefox';
+                    const firefoxVersion = userAgent.match(/Firefox\/([0-9\.]+)/);
+                    if (firefoxVersion) {
+                        browser += ` ${firefoxVersion[1]}`;
+                    }
+                } else if (/Safari/i.test(userAgent)) {
+                    browser = 'Safari';
+                    const safariVersion = userAgent.match(/Version\/([0-9\.]+)/);
+                    if (safariVersion) {
+                        browser += ` ${safariVersion[1]}`;
+                    }
+                } else if (/Edge/i.test(userAgent)) {
+                    browser = 'Edge';
+                } else if (/Opera|OPR/i.test(userAgent)) {
+                    browser = 'Opera';
+                } else if (/MSIE|Trident/i.test(userAgent)) {
+                    browser = 'Internet Explorer';
+                }
+                
+                this.deviceInfo = {
+                    type: deviceType,
+                    os: os,
+                    browser: browser
+                };
+                
+                this.elements.deviceType.textContent = deviceType;
+                this.elements.osInfo.textContent = os;
+                this.elements.browserInfo.textContent = browser;
+            }
+            
+            // 检查网络状态
+            checkNetworkStatus() {
+                this.isOnline = navigator.onLine;
+                this.updateNetworkStatusDisplay();
+            }
+            
+            // 更新网络状态显示
+            updateNetworkStatusDisplay() {
+                const networkStatus = this.elements.networkStatus;
+                const indicator = networkStatus.querySelector('.network-indicator');
+                const text = networkStatus.querySelector('span:last-child');
+                
+                if (this.isOnline) {
+                    indicator.className = 'network-indicator network-online';
+                    text.textContent = '在线';
+                } else {
+                    indicator.className = 'network-indicator network-offline';
+                    text.textContent = '离线';
+                }
+            }
+            
+            // 处理网络状态变化
+            handleNetworkChange(online) {
+                this.isOnline = online;
+                this.updateNetworkStatusDisplay();
+                
+                if (online) {
+                    this.elements.networkLatency.textContent = '检测中...';
+                    this.updateNetworkLatency();
+                    this.showAlert('网络已恢复', 'success');
+                } else {
+                    this.elements.networkLatency.textContent = '离线';
+                    this.showAlert('网络已断开', 'error');
+                    this.pausePlayback();
+                }
+            }
+            
+            // 更新统计显示
+            updateStatsDisplay() {
+                this.elements.totalDomains.textContent = this.domains.length;
+                this.elements.successCount.textContent = this.successCount;
+            }
+            
+            // 显示提示信息
+            showAlert(message, type = 'info') {
+                const alertBox = document.createElement('div');
+                alertBox.className = `alert ${type}`;
+                alertBox.textContent = message;
+                alertBox.style.position = 'fixed';
+                alertBox.style.bottom = '20px';
+                alertBox.style.right = '20px';
+                alertBox.style.padding = '12px 20px';
+                alertBox.style.backgroundColor = type === 'error' ? 'var(--danger-color)' : 
+                                               type === 'success' ? 'var(--success-color)' : 'var(--info-color)';
+                alertBox.style.color = 'white';
+                alertBox.style.borderRadius = '6px';
+                alertBox.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+                alertBox.style.zIndex = '1000';
+                alertBox.style.animation = 'fadeIn 0.3s ease-in';
+                document.body.appendChild(alertBox);
+                
+                setTimeout(() => {
+                    alertBox.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => {
+                        document.body.removeChild(alertBox);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 切换全屏模式
+            toggleFullscreen() {
+                const frame = this.elements.domainFrame;
+                const fullscreenContainer = document.getElementById('fullscreenContainer');
+                
+                if (fullscreenContainer.style.display === 'flex') {
+                    this.exitFullscreen();
+                } else {
+                    if (frame.src && frame.src !== 'about:blank') {
+                        this.enterFullscreen(frame.src);
+                    } else if (this.domains.length > 0) {
+                        this.loadDomain(this.currentIndex, false);
+                        this.enterFullscreen(this.domains[this.currentIndex]);
+                    } else {
+                        this.showAlert('当前没有加载任何域名');
+                    }
+                }
+            }
+            
+            // 进入全屏模式
+            enterFullscreen(url) {
+                const fullscreenContainer = document.getElementById('fullscreenContainer');
+                const fullscreenFrame = this.elements.fullscreenFrame;
+                
+                fullscreenFrame.src = url;
+                this.elements.fullscreenUrl.textContent = url;
+                this.elements.fullscreenProgress.textContent = `进度: ${this.currentIndex + 1}/${this.domains.length}`;
+                fullscreenContainer.style.display = 'flex';
+                
+                // 更新全屏控制按钮状态
+                this.updateFullscreenControls();
+                
+                // 禁用滚动
+                document.body.style.overflow = 'hidden';
+                
+                // 如果正在播放，全屏模式下也继续播放
+                if (this.isPlaying) {
+                    this.buttons.fsPauseBtn.textContent = '暂停';
+                } else {
+                    this.buttons.fsPauseBtn.textContent = '播放';
+                }
+            }
+            
+            // 退出全屏模式
+            exitFullscreen() {
+                const fullscreenContainer = document.getElementById('fullscreenContainer');
+                const fullscreenFrame = this.elements.fullscreenFrame;
+                
+                fullscreenFrame.src = 'about:blank';
+                fullscreenContainer.style.display = 'none';
+                this.elements.fsErrorContainer.style.display = 'none';
+                
+                // 恢复滚动
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // 初始化应用
+        document.addEventListener('DOMContentLoaded', () => {
+            const rotator = new DomainRotator();
+            
+            // 添加CSS动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: translateY(0); }
+                    to { opacity: 0; transform: translateY(20px); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 获取IP信息
+            rotator.fetchIPInfo();
+        });
+    </script>
+</body>
+</html>
